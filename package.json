@@ -1,0 +1,44 @@
+{
+  "name": "member-app",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": "^22.12.0 || >=24.0.0"
+  },
+  "scripts": {
+    "dev": "next dev --hostname 0.0.0.0",
+    "build": "prisma generate && next build && node scripts/prepare-standalone.mjs",
+    "start": "node --env-file-if-exists=.env scripts/start-production.mjs",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "admin:create": "tsx scripts/create-admin.ts",
+    "test": "tsx --test tests/*.test.ts",
+    "test:integration": "tsx --test tests/integration/*.test.ts",
+    "test:db": "tsx --test tests/database/*.test.ts",
+    "test:browser": "tsx --test tests/browser/*.test.ts",
+    "test:production": "tsx --test tests/production/*.test.ts",
+    "test:pwa": "tsx --test tests/pwa/*.test.ts"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
+    "better-auth": "1.7.14",
+    "next": "16.4.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "dotenv": "17.4.2",
+    "playwright-core": "1.64.1",
+    "prisma": "7.10.1",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  },
+  "packageManager": "npm@11.9.0"
+}

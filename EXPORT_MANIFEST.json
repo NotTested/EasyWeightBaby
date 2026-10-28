@@ -1,0 +1,248 @@
+{
+  "project": "member-app",
+  "export_date": "2026-10-27",
+  "timezone": "Asia/Seoul",
+  "state": "source-written-runtime-unverified",
+  "files": [
+    {
+      "path": ".env.example",
+      "bytes": 201,
+      "sha256": "bb2595489d5540e71268c930766f456c1112ba27bfc2c8e997400b688ff556c2"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 85,
+      "sha256": "cf28dbba054cc3f97e46cfb8e18084faa382650a18913e174f557a0deba2bb5b"
+    },
+    {
+      "path": "HANDOFF.md",
+      "bytes": 10511,
+      "sha256": "eb9c49399762eb321936c7063efcd65bebc07805b24a7db753dbb36a670e9017"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1968,
+      "sha256": "199cc34c837f9ce8421b945cefdecca5cb16e0f8ce311b6974b94a072e6d1da6"
+    },
+    {
+      "path": "RESUME_PROMPT.txt",
+      "bytes": 1871,
+      "sha256": "ef29c1ef1731bbf7bbca1acf803a1fbf78c28fb87e41d540f71aa0a9b8180c0d"
+    },
+    {
+      "path": "compose.dev.yaml",
+      "bytes": 447,
+      "sha256": "c80d722a3360d6c19378f9ecf3ce4fef0447d8c14414212c0fe47bd8eea2a0cf"
+    },
+    {
+      "path": "docs/01-plan.md",
+      "bytes": 4605,
+      "sha256": "fba03e8606178dc210c50a8e7f889c75a38d2628fb4c9953a7e4963040623e3d"
+    },
+    {
+      "path": "docs/02-data-model.md",
+      "bytes": 7537,
+      "sha256": "af78e542d54adbb103db10accc917f08388bdfaf8cf7f731314e7d6ec2f3140d"
+    },
+    {
+      "path": "docs/03-screens.md",
+      "bytes": 4430,
+      "sha256": "e5b3eafc9a52f3f0935b9d9be0f01f9de627069ef344abb265dfb09a73185fa8"
+    },
+    {
+      "path": "docs/04-integrations-deployment.md",
+      "bytes": 6181,
+      "sha256": "ca3ef33809bd58c2254dfaf1aae93ff545dc83c575b9dd75f07dd8666166ca6e"
+    },
+    {
+      "path": "docs/05-development.md",
+      "bytes": 4893,
+      "sha256": "c0f39ec6ccd8b01b74177d8b33325d1760b62350950f9000d160d0e95f708538"
+    },
+    {
+      "path": "next-env.d.ts",
+      "bytes": 81,
+      "sha256": "879741880b6ab48da99dcc06dcc674d381c9826137b0496bf7bb368f302de9fc"
+    },
+    {
+      "path": "next.config.ts",
+      "bytes": 474,
+      "sha256": "1c56046ed12831d05b7a63127beadb5675e6eab950c77c9030b6007d927c3179"
+    },
+    {
+      "path": "package.json",
+      "bytes": 969,
+      "sha256": "105f3e335fe8a6b5cee60fcd52ea1989a4210f69deaaa2c04d7989014ec2d91f"
+    },
+    {
+      "path": "prisma/migrations/202610230001_foundation/migration.sql",
+      "bytes": 4021,
+      "sha256": "b6d20456a9a0d7a6c7e3231af24474a317e1d838f74c3a30244bf21dea61e5ee"
+    },
+    {
+      "path": "prisma/migrations/migration_lock.toml",
+      "bytes": 24,
+      "sha256": "1db17a8d051aa136110736752c5e1f8b7ed92b6ea8e803112fbbe2497047c210"
+    },
+    {
+      "path": "prisma/schema.prisma",
+      "bytes": 3100,
+      "sha256": "9bdaa0843891d7af4564ce94739b2d04f4b3f836ccf2ebdd6c693057cae04c77"
+    },
+    {
+      "path": "scripts/create-admin.ts",
+      "bytes": 2809,
+      "sha256": "619badb6dd87bd77e11f0948f013775eed4114d9a6874f8f7aba94df11501161"
+    },
+    {
+      "path": "src/app/admin/invitations/page.tsx",
+      "bytes": 859,
+      "sha256": "13e9c0468523b42ae3c6813ca23226c1cc409537a3ceb87dbe2fde521b6487d6"
+    },
+    {
+      "path": "src/app/api/admin/invitations/[id]/route.ts",
+      "bytes": 621,
+      "sha256": "9226c67e9af63cbbd7248f82bfcdfb52f793272bc7138b2a9e3e0c3060e4779b"
+    },
+    {
+      "path": "src/app/api/admin/invitations/route.ts",
+      "bytes": 1030,
+      "sha256": "73aa395d4d5710a07dbe88b998684f947fb214c2d363832748acfb637353f237"
+    },
+    {
+      "path": "src/app/api/auth/[...all]/route.ts",
+      "bytes": 142,
+      "sha256": "d0d0d3247e08be459b3b1aa3b7fc79e10a91e89a59ace61e9bd6cbfd65772ff6"
+    },
+    {
+      "path": "src/app/api/health/route.ts",
+      "bytes": 307,
+      "sha256": "2a25dd88a3d7c0e6fd45f31c3dab5db1c99296c2d745e8ec0f0b72d142aa68eb"
+    },
+    {
+      "path": "src/app/api/me/route.ts",
+      "bytes": 266,
+      "sha256": "c8093b666902b812a963ce812a463fd5018e570e065c832b347f0cda7d827c89"
+    },
+    {
+      "path": "src/app/api/register/route.ts",
+      "bytes": 330,
+      "sha256": "a2a594774908ba2fe0930f54cd2753834d6594d6ff4a854d0648bdacfe9110b0"
+    },
+    {
+      "path": "src/app/api/sessions/[id]/route.ts",
+      "bytes": 561,
+      "sha256": "ea5ea50d40fe4ebd233b1f9ce8fd403299d7c618203b111628307ab0c07750b1"
+    },
+    {
+      "path": "src/app/api/sessions/route.ts",
+      "bytes": 371,
+      "sha256": "c1b5690c79d72b5959d4d2db0737df7c5c153bfeced3801d42ba41337fbb17f8"
+    },
+    {
+      "path": "src/app/error.tsx",
+      "bytes": 370,
+      "sha256": "3fa07654958385c2fb4312cf5c62c54b3fb600bdbba127291b85c5bd4dbf950b"
+    },
+    {
+      "path": "src/app/globals.css",
+      "bytes": 4711,
+      "sha256": "32c5d725c8135590f932f71504452abec4e946abb810d7186ab48486483cce49"
+    },
+    {
+      "path": "src/app/join/page.tsx",
+      "bytes": 763,
+      "sha256": "e79b8274a5450d825aebf421559b350b1f3a7d1fa8bd2098c76ee2ecf9de03c2"
+    },
+    {
+      "path": "src/app/layout.tsx",
+      "bytes": 371,
+      "sha256": "344e0b382e4473063539fba379ebb229dac85619eda08e0d2ab6c6607ef20b46"
+    },
+    {
+      "path": "src/app/login/page.tsx",
+      "bytes": 938,
+      "sha256": "ec96c3d4d514f4de01dd6d176c69c4437bf2ac589be33dbb522509ee4e3818a6"
+    },
+    {
+      "path": "src/app/not-found.tsx",
+      "bytes": 219,
+      "sha256": "2385a18adbd699d7e2b42bec2d7313474a14ad85f6231aef673d4411334937cb"
+    },
+    {
+      "path": "src/app/page.tsx",
+      "bytes": 2374,
+      "sha256": "df8c3b361fcf49979d7dcc85f320cbbbc499ddd6f80eec4c988e46e0a4ebb64c"
+    },
+    {
+      "path": "src/components/auth-form.tsx",
+      "bytes": 3078,
+      "sha256": "f8623ebf5c788da239a3139660bbd68e8779897fd03cdc2947cd8e8e8d8c4f1c"
+    },
+    {
+      "path": "src/components/invitation-manager.tsx",
+      "bytes": 3584,
+      "sha256": "00ec674f2d61d6c033916d9bdf633fefefb4837205f7d964019075b465cb5be9"
+    },
+    {
+      "path": "src/components/sign-out.tsx",
+      "bytes": 688,
+      "sha256": "8ddebb112339e76279c89abf89be10da685a8ed97bf5cc5e4887752dbc76afc2"
+    },
+    {
+      "path": "src/lib/access.ts",
+      "bytes": 196,
+      "sha256": "2e3980fe0d8ee77af5fbb0b110615d1f4b7bad35d374bdcfd72856d2346c3305"
+    },
+    {
+      "path": "src/lib/auth.ts",
+      "bytes": 1116,
+      "sha256": "4b7daa5ab5420d69166a428afe59776ac20c3d27a233303a5d35277e650f450e"
+    },
+    {
+      "path": "src/lib/config.ts",
+      "bytes": 611,
+      "sha256": "940c60168ef6ecba59a42399c9f99fede1dbd203d508ec6968fb412231fe1ce2"
+    },
+    {
+      "path": "src/lib/db.ts",
+      "bytes": 238,
+      "sha256": "12d5ef697cb4e454d538a7c0c70bc7078398aaa5087e885d088a2117b4f95aeb"
+    },
+    {
+      "path": "src/lib/http.ts",
+      "bytes": 2429,
+      "sha256": "c1d7cd304c0d0efd8b92374038c40f052702a5c1cf3ce028121a34c52c572b8e"
+    },
+    {
+      "path": "src/lib/invitations.ts",
+      "bytes": 2237,
+      "sha256": "8ecadcfd743c566606831e05dd9c9894e7649b20cd37eb8a5a9d6609fd4bcd6b"
+    },
+    {
+      "path": "src/lib/page-user.ts",
+      "bytes": 286,
+      "sha256": "aa973d2e02c754bf0a75a333f48801a758ce46e1b50e0b88d82362e5ef1a0283"
+    },
+    {
+      "path": "src/lib/validation.ts",
+      "bytes": 453,
+      "sha256": "c5d2edf15d3dbc0c3ceb40932f980b4749c180ebcfed75be85f95d2baa61a33e"
+    },
+    {
+      "path": "tests/integration/auth.test.ts",
+      "bytes": 7548,
+      "sha256": "2d88773899c1493c43c8745a23c933ee205d7f777446e9285273c7094d054d1d"
+    },
+    {
+      "path": "tests/validation.test.ts",
+      "bytes": 802,
+      "sha256": "d9d6b8619d9b3784779448f2bf9edafa83f3dc24fcffca098c2399be6257d374"
+    },
+    {
+      "path": "tsconfig.json",
+      "bytes": 532,
+      "sha256": "1d46dad26863bb280c6db1f230f284c5579987c66ce3025ba55f5b1c31e17455"
+    }
+  ]
+}

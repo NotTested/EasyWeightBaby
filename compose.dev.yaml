@@ -1,0 +1,35 @@
+name: member-app-dev
+services:
+  db:
+    image: postgres:17-bookworm
+    environment:
+      POSTGRES_USER: member
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      POSTGRES_DB: member
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - member_dev_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U member -d member"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  db_test:
+    image: postgres:17-bookworm
+    environment:
+      POSTGRES_USER: member
+      POSTGRES_PASSWORD: ${TEST_POSTGRES_PASSWORD:?Set TEST_POSTGRES_PASSWORD}
+      POSTGRES_DB: member_test
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - member_test_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U member -d member_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+volumes:
+  member_dev_db:
+  member_test_db:

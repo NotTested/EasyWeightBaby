@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String   @id
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false)
+  image         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  role          String   @default("member")
+  timeZone      String   @default("Asia/Seoul")
+  sessions      Session[]
+  accounts      Account[]
+  invitations   Invitation[]
+  workouts      WorkoutSession[]
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId])
+}
+
+model Account {
+  id                     String   @id
+  accountId              String
+  providerId             String
+  userId                 String
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken            String?
+  refreshToken           String?
+  idToken                String?
+  accessTokenExpiresAt   DateTime?
+  refreshTokenExpiresAt  DateTime?
+  scope                  String?
+  password               String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  @@index([userId])
+  @@unique([providerId, accountId])
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  @@index([identifier])
+}
+
+model RateLimit {
+  id          String @id @default(cuid())
+  key         String @unique
+  count       Int
+  lastRequest BigInt
+}
+
+model Invitation {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique
+  email      String?
+  expiresAt  DateTime
+  usedAt     DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime @default(now())
+  createdBy  String
+  creator    User     @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  @@index([createdBy, createdAt])
+}
+
+// 초대 가입 API의 전역 부하 제한. 키는 작업과 시간 구간으로 구성합니다.
+model RequestBucket {
+  key       String   @id
+  count     Int      @default(1)
+  expiresAt DateTime
+  @@index([expiresAt])
+}
+
+// 단계 2에서는 소유권 검증을 위한 최소 세션 모델만 제공합니다.
+// 종목·세트·루틴은 단계 3 마이그레이션에서 추가합니다.
+model WorkoutSession {
+  id        String   @id @default(cuid())
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  title     String
+  localDate String   @db.VarChar(10)
+  timeZone  String   @default("Asia/Seoul")
+  status    String   @default("in_progress")
+  version   Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@index([ownerId, localDate])
+}
