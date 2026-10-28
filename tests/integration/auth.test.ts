@@ -3,6 +3,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID, randomBytes, createHash } from "node:crypto";
 import { spawn, execFileSync } from "node:child_process";
+import { once } from "node:events";
+import { resetDevTestOutput } from "../helpers/dev-output";
+import { testClientIP } from "../helpers/client-ip";
 import { setTimeout as delay } from "node:timers/promises";
 import { createPrismaClient } from "../../src/lib/prisma-client";
 import { hashPassword } from "better-auth/crypto";
@@ -19,9 +22,11 @@ test("초대·인증·소유권 HTTP 통합 검증", { timeout: 180000 }, async 
       [target.hostname, target.port || "5432", target.pathname].join(":"), "Test DB must differ from development DB");
   }
   const base = "http://localhost:3197";
+  const clientIP = testClientIP();
   const env = { ...process.env, DATABASE_URL: databaseUrl, APP_URL: base,
     BETTER_AUTH_SECRET: randomBytes(32).toString("hex"), NEXT_TELEMETRY_DISABLED: "1" };
   execFileSync(process.execPath, ["node_modules/prisma/build/index.js", "migrate", "deploy"], { env, stdio: "pipe", timeout: 60000 });
+  await resetDevTestOutput();
   const db = createPrismaClient(databaseUrl);
   const prefix = `test-${randomUUID()}`;
   const password = "test-password-at-least-12";
@@ -30,7 +35,7 @@ test("초대·인증·소유권 HTTP 통합 검증", { timeout: 180000 }, async 
   const createdEmails = new Set<string>();
   const server = spawn(process.execPath, ["node_modules/next/dist/bin/next", "dev", "--hostname", "127.0.0.1", "--port", "3197"], { env, stdio: "ignore" });
   async function request(path: string, method = "GET", body?: unknown, cookie?: string, origin = base) {
-    return fetch(`${base}${path}`, { method, headers: { Origin: origin, ...(body ? { "Content-Type": "application/json" } : {}), ...(cookie ? { Cookie: cookie } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}) });
+    return fetch(`${base}${path}`, { method, headers: { Origin: origin, "X-Forwarded-For": clientIP, ...(body ? { "Content-Type": "application/json" } : {}), ...(cookie ? { Cookie: cookie } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}) });
   }
   async function makeUser(suffix: string, role = "member") {
     const id = randomUUID(); const email = `${prefix}-${suffix}@example.com`;
@@ -108,7 +113,7 @@ test("초대·인증·소유권 HTTP 통합 검증", { timeout: 180000 }, async 
       assert.equal((await db.invitation.findUniqueOrThrow({ where: { id: invitation.id } })).usedAt, null);
     });
   } finally {
-    server.kill("SIGTERM");
+    if (server.exitCode === null) { const exit = once(server, "exit"); server.kill("SIGTERM"); await exit; }
     await db.invitation.deleteMany({ where: { createdBy: { in: users } } });
     await db.user.deleteMany({ where: { email: { in: [...createdEmails] } } });
     await db.$disconnect();

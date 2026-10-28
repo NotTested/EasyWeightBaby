@@ -5,11 +5,13 @@ export function AuthForm({ join = false }: { join?: boolean }) {
   const [busy, setBusy] = useState(false);
   const [token, setToken] = useState("");
   const [registered, setRegistered] = useState(false);
+  const [ready, setReady] = useState(false);
   useEffect(() => {
     if (join && window.location.hash.startsWith("#token=")) {
       setToken(window.location.hash.slice(7));
       window.history.replaceState(null, "", window.location.pathname);
     }
+    setReady(true);
   }, [join]);
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); setBusy(true); setError("");
@@ -31,7 +33,8 @@ export function AuthForm({ join = false }: { join?: boolean }) {
     finally { setBusy(false); }
   }
   if (registered) return <div className="success" role="status">가입이 완료됐습니다. <a href="/login">로그인하기 →</a></div>;
-  return <form onSubmit={submit}>
+  return <form onSubmit={submit} method="post">
+    <noscript><p>로그인·가입을 사용하려면 브라우저의 JavaScript를 켜주세요.</p></noscript>
     {join && <label>이름<input name="name" autoComplete="name" required maxLength={40} /></label>}
     <label>이메일<input name="email" type="email" autoComplete="email" required maxLength={254} /></label>
     <label>비밀번호<input name="password" type="password" autoComplete={join ? "new-password" : "current-password"} required minLength={join ? 12 : undefined} maxLength={128} />
@@ -39,7 +42,7 @@ export function AuthForm({ join = false }: { join?: boolean }) {
     {join && <label>초대 코드<input name="token" value={token} onChange={e => setToken(e.target.value.trim())} autoComplete="off" required pattern="[a-f0-9]{64}" spellCheck={false} />
       <span className="help">관리자에게 받은 초대 링크 또는 코드를 사용하세요.</span></label>}
     {error && <div className="error" role="alert">{error}</div>}
-    <button className="button" disabled={busy}>{busy ? "처리 중…" : join ? "가입하기" : "로그인"}</button>
+    <button className="button" disabled={busy || !ready}>{busy ? "처리 중…" : join ? "가입하기" : "로그인"}</button>
     <p className="help">{join ? <a href="/login">이미 계정이 있나요? 로그인</a> : <a href="/join">초대받으셨나요? 가입하기 →</a>}</p>
   </form>;
 }

@@ -1,6 +1,6 @@
 # 회원님? — 운동관리 웹앱
 
-현재 진행: A1~A5 기반 검증과 B1~B3 화면·PWA·오프라인 안내·업데이트 완료. 다음은 C1 운동 종목 관리다. 최신 상태는 [작업 진행표](docs/07-work-tracker.md), 설치 검증은 [B2 문서](docs/12-pwa-installation.md), 오프라인·업데이트 정책은 [B3 문서](docs/13-offline-updates.md)를 따른다. 실행은 [로컬 DB](docs/08-local-database.md)·[인증 검증](docs/09-auth-verification.md)·[운영 실행](docs/10-production-runtime.md), 화면 구성은 [B1 문서](docs/11-app-shell.md)를 참고한다. 아래의 이전 구현·설치 대기 설명은 내보내기 당시 기록이다.
+현재 진행: A1~A5 기반 검증, B1~B3 화면·PWA·오프라인 안내·업데이트, C1 종목·C2 루틴·C3 운동 시작/재진입·C4 실제 세트 입력·C5 좌우/마지막 RIR 완료. 다음은 C6 유산소·메모·운동 종료다. 최신 상태는 [작업 진행표](docs/07-work-tracker.md), 좌우·RIR은 [C5 문서](docs/18-sides-and-rir.md), 실제 세트는 [C4 문서](docs/17-actual-sets.md), 시작·재진입은 [C3 문서](docs/16-workout-start.md), 루틴은 [C2 문서](docs/15-weekly-routines.md), 종목은 [C1 문서](docs/14-exercise-management.md)를 따른다. 실행은 [로컬 DB](docs/08-local-database.md)·[인증 검증](docs/09-auth-verification.md)·[운영 실행](docs/10-production-runtime.md)을 참고한다. 아래의 이전 구현·설치 대기 설명은 내보내기 당시 기록이다.
 
 친구·동료와 함께 사용하는 모바일 우선 운동관리 웹앱의 설계 문서입니다.
 

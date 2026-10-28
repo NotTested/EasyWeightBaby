@@ -15,7 +15,7 @@ export async function currentUser(request: Request, admin = false) {
 export function verifyOrigin(request: Request) {
   if (request.headers.get("origin") !== appUrl()) throw new HttpError(403, "허용되지 않은 요청입니다.");
 }
-export async function readJson(request: Request) {
+export async function readJson(request: Request, maxBytes = 16384) {
   if (!request.headers.get("content-type")?.startsWith("application/json")) throw new HttpError(415, "JSON 요청이 필요합니다.");
   const reader = request.body?.getReader();
   if (!reader) throw new HttpError(400, "입력값이 필요합니다.");
@@ -24,7 +24,7 @@ export async function readJson(request: Request) {
     const { done, value } = await reader.read();
     if (done) break;
     size += value.length;
-    if (size > 16384) { await reader.cancel(); throw new HttpError(413, "입력값이 너무 큽니다."); }
+    if (size > maxBytes) { await reader.cancel(); throw new HttpError(413, "입력값이 너무 큽니다."); }
     chunks.push(value);
   }
   try { return JSON.parse(Buffer.concat(chunks).toString("utf8")) as unknown; }

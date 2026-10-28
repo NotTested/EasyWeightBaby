@@ -12,7 +12,7 @@ export function AppNavigation() {
   const pathname = usePathname();
   return <nav className="app-navigation" aria-label="주 메뉴">
     {destinations.map(({ href, label, mark }) => <Link key={href} href={href}
-      aria-current={pathname === href || (href !== "/" && pathname.startsWith(href + "/")) ? "page" : undefined}>
+      aria-current={pathname === href || (href !== "/" && pathname.startsWith(href + "/")) || (href === "/routines" && pathname === "/exercises") || (href === "/" && pathname.startsWith("/sessions")) ? "page" : undefined}>
       <span className="navigation-mark" aria-hidden="true">{mark}</span><span>{label}</span>
     </Link>)}
   </nav>;

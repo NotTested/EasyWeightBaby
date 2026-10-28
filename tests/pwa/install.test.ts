@@ -126,6 +126,10 @@ test("Chromium PWA install and standalone launch", { timeout: 120000 }, async t 
       await other.goto(base + "/login");
       await other.getByLabel("이메일", { exact: true }).fill("other-unsaved@example.invalid");
       await other.evaluate("window.b3Marker = 'other-original-page'");
+      const editor = await context!.newPage();
+      await editor.goto(base + "/exercises");
+      const draftName = "Update protection " + randomUUID();
+      await editor.getByLabel("종목명", { exact: true }).fill(draftName);
       const version = "test-update-" + randomUUID();
       replacementWorker = (await readFile("scripts/sw-template.js", "utf8")).replace("__MEMBER_BUILD_ID__", JSON.stringify(version));
       await page.evaluate("navigator.serviceWorker.getRegistration().then(reg => reg.update())");
@@ -146,6 +150,15 @@ test("Chromium PWA install and standalone launch", { timeout: 120000 }, async t 
       await other.getByLabel("이메일", { exact: true }).fill("");
       await Promise.all([other.waitForEvent("load"), other.getByRole("button", { name: "업데이트 적용" }).click()]);
       await other.close();
+      await editor.getByRole("button", { name: "업데이트 적용" }).click();
+      await editor.getByRole("status").filter({ hasText: "입력 중인 내용이 있습니다" }).waitFor();
+      assert.equal(await editor.getByLabel("종목명", { exact: true }).inputValue(), draftName);
+      await editor.getByRole("button", { name: "종목 저장", exact: true }).click();
+      await editor.getByRole("status").filter({ hasText: "종목을 저장했습니다" }).waitFor();
+      await editor.waitForFunction(() => !!document.querySelector('form[data-update-safe="true"]'));
+      await Promise.all([editor.waitForEvent("load"), editor.getByRole("button", { name: "업데이트 적용" }).click()]);
+      await editor.getByRole("heading", { name: draftName, exact: true }).waitFor();
+      await editor.close();
       const keys = await page.evaluate(() => caches.keys());
       assert.deepEqual(keys, ["member-offline-" + version]);
     });
@@ -178,6 +191,7 @@ test("Chromium PWA install and standalone launch", { timeout: 120000 }, async t 
     await context?.close();
     if (proxy) { proxy.closeAllConnections(); await new Promise<void>((resolve, reject) => proxy!.close(error => error ? reject(error) : resolve())); }
     if (server.exitCode === null) { const exit = once(server, "exit"); server.kill("SIGTERM"); await exit; }
+    await db.exercise.deleteMany({ where: { ownerId: id } });
     await db.user.deleteMany({ where: { id } });
     await db.$disconnect();
     await rm(profile, { recursive: true, force: true });

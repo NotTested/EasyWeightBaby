@@ -20,6 +20,8 @@ model User {
   accounts      Account[]
   invitations   Invitation[]
   workouts      WorkoutSession[]
+  exercises     Exercise[]
+  routines      Routine[]
 }
 
 model Session {
@@ -92,8 +94,6 @@ model RequestBucket {
   @@index([expiresAt])
 }
 
-// 단계 2에서는 소유권 검증을 위한 최소 세션 모델만 제공합니다.
-// 종목·세트·루틴은 단계 3 마이그레이션에서 추가합니다.
 model WorkoutSession {
   id        String   @id @default(cuid())
   ownerId   String
@@ -105,5 +105,126 @@ model WorkoutSession {
   version   Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  startedAt DateTime?
+  startKey String?
+  startHash String?
+  routineVersionId String?
+  routineVersion RoutineVersion? @relation(fields: [routineVersionId], references: [id], onDelete: Restrict)
+  routineName String?
+  routineNumber Int?
+  routineWeekday Int?
+  exercises SessionExercise[]
+  @@unique([ownerId, startKey])
   @@index([ownerId, localDate])
+}
+
+model Exercise {
+  id            String   @id @default(cuid())
+  ownerId       String?
+  owner         User?    @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  scopeKey      String
+  name          String
+  nameKey       String
+  aliases       String[] @default([])
+  searchText    String
+  equipment     String
+  category      String
+  execution     String
+  measurement   String
+  benchAngle    String   @default("")
+  notes         String   @default("")
+  active        Boolean  @default(true)
+  version       Int      @default(1)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  routineItems  RoutineItem[]
+  sessionItems  SessionExercise[]
+
+  @@unique([scopeKey, nameKey])
+  @@index([ownerId, active])
+}
+
+model Routine {
+  id        String @id @default(cuid())
+  ownerId   String
+  owner     User @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  name      String
+  version   Int @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  versions  RoutineVersion[]
+  @@index([ownerId, updatedAt])
+}
+model RoutineVersion {
+  id        String @id @default(cuid())
+  routineId String
+  routine   Routine @relation(fields: [routineId], references: [id], onDelete: Cascade)
+  number    Int
+  name      String
+  createdAt DateTime @default(now())
+  days      RoutineDay[]
+  sessions  WorkoutSession[]
+  @@unique([routineId, number])
+}
+
+model SessionExercise {
+  id String @id @default(cuid())
+  sessionId String
+  session WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  exerciseId String
+  exercise Exercise @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+  position Int
+  exerciseName String
+  equipment String
+  execution String
+  measurement String
+  goalSets Int?
+  goalMinReps Int?
+  goalMaxReps Int?
+  goalRir Int?
+  benchAngle String
+  notes String
+  sets WorkoutSet[]
+  @@unique([sessionId, position])
+}
+model RoutineDay {
+  id        String @id @default(cuid())
+  versionId String
+  version   RoutineVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  weekday   Int
+  rest      Boolean
+  items     RoutineItem[]
+  @@unique([versionId, weekday])
+}
+model RoutineItem {
+  id           String @id @default(cuid())
+  dayId        String
+  day          RoutineDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  position     Int
+  exerciseId   String
+  exercise     Exercise @relation(fields: [exerciseId], references: [id], onDelete: Restrict)
+  exerciseName String
+  equipment    String
+  sets         Int
+  minReps      Int
+  maxReps      Int
+  rir          Int?
+  benchAngle   String
+  notes        String
+  @@unique([dayId, position])
+}
+
+model WorkoutSet {
+  id String @id @default(cuid())
+  sessionExerciseId String
+  exercise SessionExercise @relation(fields: [sessionExerciseId], references: [id], onDelete: Cascade)
+  position Int
+  weightKg Float?
+  dumbbellCount Int?
+  reps Int?
+  completed Boolean @default(false)
+  side String @default("unspecified")
+  kind String @default("working")
+  actualRir Int?
+  @@unique([sessionExerciseId, position])
 }

@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 function hasPendingInput() {
   if (document.querySelector('[data-unsaved-changes="true"]')) return true;
   return Array.from(document.querySelectorAll("form input, form textarea, form select")).some(element => {
+    // Editors may mark server-confirmed values safe, but must remove this marker on edits/in-flight saves.
+    if (element.closest('form[data-update-safe="true"]')) return false;
     if (element instanceof HTMLInputElement) {
       if (element.disabled || element.readOnly || ["hidden", "submit", "button", "reset"].includes(element.type)) return false;
       if (["checkbox", "radio"].includes(element.type)) return element.checked !== element.defaultChecked;

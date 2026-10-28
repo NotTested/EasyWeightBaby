@@ -8,6 +8,8 @@ import { setTimeout as delay } from "node:timers/promises";
 import { chromium } from "playwright-core";
 import { hashPassword } from "better-auth/crypto";
 import { createPrismaClient } from "../../src/lib/prisma-client";
+import { resetDevTestOutput } from "../helpers/dev-output";
+import { testClientIP } from "../helpers/client-ip";
 
 test("Desktop and mobile invitation authentication UI", { timeout: 180000 }, async t => {
   const url = process.env.TEST_DATABASE_URL;
@@ -25,6 +27,7 @@ test("Desktop and mobile invitation authentication UI", { timeout: 180000 }, asy
   execFileSync(process.execPath, ["node_modules/prisma/build/index.js", "migrate", "deploy"], {
     env, stdio: "pipe", timeout: 30000,
   });
+  await resetDevTestOutput();
   const db = createPrismaClient(url);
   const adminId = randomUUID();
   const adminEmail = `${adminId}@example.invalid`;
@@ -48,17 +51,26 @@ test("Desktop and mobile invitation authentication UI", { timeout: 180000 }, asy
     browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH ?? "/usr/bin/chromium", headless: true });
     for (const viewport of [{ width: 1280, height: 900 }, { width: 390, height: 844 }, { width: 320, height: 740 }]) {
       await t.test(`invite, join, login, role restriction, logout at ${viewport.width}px`, async () => {
-        const adminContext = await browser!.newContext({ viewport });
-        const memberContext = await browser!.newContext({ viewport });
+        const adminContext = await browser!.newContext({ viewport, extraHTTPHeaders: { "X-Forwarded-For": testClientIP() } });
+        const memberContext = await browser!.newContext({ viewport, extraHTTPHeaders: { "X-Forwarded-For": testClientIP() } });
         const pageErrors: string[] = [];
+        let nativeCredentialNavigation = false;
         try {
           const admin = await adminContext.newPage();
           const member = await memberContext.newPage();
           for (const page of [admin, member]) page.on("pageerror", error => pageErrors.push(error.message));
+          admin.on("request", request => {
+            if (request.resourceType() === "document" && new URL(request.url()).searchParams.has("password")) nativeCredentialNavigation = true;
+          });
           await admin.goto(`${base}/login`);
           await admin.getByLabel("이메일", { exact: true }).fill(adminEmail);
           await admin.getByLabel("비밀번호", { exact: true }).fill(password);
+          const signIn = admin.waitForResponse(response => response.url().endsWith("/api/auth/sign-in/email"), { timeout: 10000 }).catch(() => null);
           await admin.getByRole("button", { name: "로그인", exact: true }).click();
+          const signedIn = await signIn;
+          assert.ok(signedIn, JSON.stringify({ nativeCredentialNavigation, pageErrors: pageErrors.slice(0, 2) }));
+          assert.equal(signedIn.status(), 200);
+          assert.equal(nativeCredentialNavigation, false);
           await admin.waitForURL(base + "/");
           await admin.getByRole("link", { name: "친구 초대", exact: true }).click();
           const email = `${randomUUID()}@example.invalid`;

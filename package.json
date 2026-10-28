@@ -15,9 +15,9 @@
     "db:deploy": "prisma migrate deploy",
     "admin:create": "tsx scripts/create-admin.ts",
     "test": "tsx --test tests/*.test.ts",
-    "test:integration": "tsx --test tests/integration/*.test.ts",
+    "test:integration": "tsx --test --test-concurrency=1 tests/integration/*.test.ts",
     "test:db": "tsx --test tests/database/*.test.ts",
-    "test:browser": "tsx --test tests/browser/*.test.ts",
+    "test:browser": "tsx --test --test-concurrency=1 tests/browser/*.test.ts",
     "test:production": "tsx --test tests/production/*.test.ts",
     "test:pwa": "tsx --test tests/pwa/*.test.ts"
   },

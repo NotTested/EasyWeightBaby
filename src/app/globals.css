@@ -56,6 +56,31 @@ input,select { min-width:0; width:100%; border:1px solid #c8d4c9; border-radius:
 .runtime-notices p { margin:0; }
 .runtime-notices p+p { margin-top:8px; }
 .update-notice { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; }
+.exercise-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:20px; }
+.exercise-search { display:grid; gap:12px; }
+.exercise-list h3 { font-size:18px; margin:0; overflow-wrap:anywhere; }
+.exercise-list { overflow-wrap:anywhere; }
+.exercise-list .row { flex-wrap:wrap; }
+.exercise-list-heading { flex-wrap:wrap; }
+.exercise-notes { white-space:pre-wrap; overflow-wrap:anywhere; font-size:14px; }
+.exercise-editor { min-width:0; align-self:start; }
+.exercise-editor>.row { flex-wrap:wrap; }
+.exercise-editor fieldset { border:0; padding:0; margin:0; min-width:0; display:grid; gap:16px; }
+.exercise-fields { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:12px; }
+textarea { font:inherit; min-width:0; width:100%; resize:vertical; border:1px solid #c8d4c9; border-radius:9px; padding:11px 12px; color:var(--ink); }
+.checkbox-label { display:flex; align-items:center; min-height:44px; }
+.checkbox-label input { width:20px; min-height:20px; }
+.routine-workspace { display:grid; gap:20px; }
+.routine-editor { border:0; margin:0; padding:0; min-width:0; display:grid; gap:20px; }
+.routine-day { min-width:0; margin:0; border:1px solid var(--line); border-radius:12px; padding:16px; }
+.routine-day legend { font-weight:700; }
+.routine-item { padding:16px; background:var(--paper); border-radius:12px; display:grid; gap:12px; }
+.routine-actions,.routine-tools { display:flex; align-items:end; flex-wrap:wrap; gap:12px; margin:16px 0; }
+.routine-tools label { flex:1; min-width:0; }
+.session-list,.session-goals { overflow-wrap:anywhere; }
+.session-goals li { padding:12px 0; }
+.app-shell h1 { overflow-wrap:anywhere; }
+@media(max-width:700px) { .exercise-grid { grid-template-columns:minmax(0,1fr); } }
 .skip-link { position:fixed; top:8px; left:16px; z-index:100; padding:12px 18px; background:var(--ink); color:white; border-radius:8px; transform:translateY(-180%); }
 .skip-link:focus { transform:translateY(0); }
 .app-navigation { display:flex; gap:8px; padding:16px 0; border-bottom:1px solid var(--line); }
@@ -87,3 +112,10 @@ input,select { min-width:0; width:100%; border:1px solid #c8d4c9; border-radius:
   .app-navigation a { flex-direction:column; gap:0; padding:6px 4px; min-height:52px; font-size:14px; }
   .navigation-mark { font-size:10px; }
 }
+
+.actual-editor { border: 0; padding: 0; min-width: 0; }
+.actual-exercise { margin-block: 1.5rem; overflow-wrap: anywhere; }
+.actual-set { display: flex; flex-wrap: wrap; gap: .8rem; margin-block: .8rem; min-width: 0; border: 1px solid var(--border, #ccc); border-radius: .6rem; }
+.actual-set > div { flex: 1 1 8rem; min-width: 0; }
+.actual-set input[type=number] { width: 100%; min-width: 0; }
+.actual-set input[type=checkbox] { width: auto; }
