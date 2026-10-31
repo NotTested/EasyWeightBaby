@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { CardioEditor } from "./cardio-editor";
 import { useWorkoutDraft } from "./use-workout-draft";
 import { workoutText, type WorkoutModel } from "@/lib/workout-draft";
-import { lastWorkingIndex, sideLabels, kindLabels } from "@/lib/set-performance";
+import { lastWorkingIndex, sideLabels, kindLabels, repetitionText } from "@/lib/set-performance";
 type ActualSet = { side: string; kind: string; actualRir: number | null; weightKg: number | null; dumbbellCount: number | null; reps: number | null; completed: boolean };
 import type { ExerciseItem } from "@/lib/exercise-input";
 type Model = WorkoutModel;
@@ -74,8 +74,8 @@ export function ActualWorkout({ initial, ownerId }: { initial: Model; ownerId: s
         const last = lastWorkingIndex(exercise.sets);
         return <section key={exercise.id ?? `new-${index}`} className="actual-exercise" aria-label={`${exercise.exerciseName} 실제 기록`}>
         <h3>실제 · {exercise.exerciseName}</h3>
-        {exercise.execution === "alternating" && <p className="help">좌우 교대 종목입니다. 왼쪽·오른쪽을 별도 행에 기록하고, 해당 측의 실제 반복만 입력하세요.</p>}
-        <p className="help">각 행은 기록 순서입니다. 좌우 기록은 같은 세트라도 별도 행으로 추가하세요. 덤벨 수를 좌우 측수로 곱하지 않습니다.</p>
+        {exercise.execution === "alternating" && <p className="help">좌우 교대 종목입니다. 양쪽의 중량·반복·RIR을 같게 기록할 때는 양쪽 교대를 선택하세요. 다르면 왼쪽·오른쪽을 별도 행에 기록하세요.</p>}
+        <p className="help">각 행은 기록 순서입니다. 양쪽 교대는 한쪽당 반복수로 입력합니다. 좌우 값이 다르면 별도 행으로 기록하며, 덤벨 수를 좌우 측수로 중복 곱하지 않습니다.</p>
         <p className="help">RIR은 더 할 수 있었던 반복 수(0~10)입니다. 빈칸은 미입력이며 목표 RIR에서 채우지 않습니다.</p>
         <p>마지막 수행 본세트: {last < 0 ? "없음" : `${last + 1}행 · ${sideLabels[exercise.sets[last].side as keyof typeof sideLabels]}`}</p>
         <div><label htmlFor={`last-rir-${index}`}>마지막 본세트 RIR</label>
@@ -91,10 +91,11 @@ export function ActualWorkout({ initial, ownerId }: { initial: Model; ownerId: s
             {Object.entries(kindLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
           </select></div>
           {(["weightKg", "dumbbellCount", "reps"] as const).filter(key => key !== "dumbbellCount" || ["dumbbell", "dumbbell_bench"].includes(exercise.equipment)).map(key => <div key={key}>
-            <label htmlFor={`actual-${index}-${position}-${key}`}>{key === "weightKg" ? (["dumbbell", "dumbbell_bench"].includes(exercise.equipment) ? "개당 중량(kg)" : "외부 중량(kg)") : key === "reps" ? "반복수" : "덤벨 수"}</label>
+            <label htmlFor={`actual-${index}-${position}-${key}`}>{key === "weightKg" ? (["dumbbell", "dumbbell_bench"].includes(exercise.equipment) ? "개당 중량(kg)" : "외부 중량(kg)") : key === "reps" ? (set.side === "alternating_both" ? "한쪽당 반복수" : "반복수") : "덤벨 수"}</label>
             <input id={`actual-${index}-${position}-${key}`} type="number" min={key === "dumbbellCount" ? 1 : 0} max={key === "dumbbellCount" ? 2 : key === "reps" ? 1000 : 2000} step={key === "weightKg" ? "any" : 1} value={set[key] ?? ""}
               onChange={e => change(index, exercise.sets.map((s, i) => i === position ? { ...s, [key]: e.target.value === "" ? null : Number(e.target.value) } : s))} />
           </div>)}
+          {set.side === "alternating_both" && <p className="help" role="note">{repetitionText(set)}. 좌우 같은 중량·반복·RIR의 한 세트입니다. 값이 다르면 왼쪽·오른쪽을 별도 행에 기록하세요.</p>}
           <div><label htmlFor={`rir-${index}-${position}`}>실제 RIR</label>
             <input id={`rir-${index}-${position}`} type="number" min="0" max="10" step="1" disabled={!set.completed} value={set.actualRir ?? ""}
               onChange={e => patchSet(index, position, { actualRir: e.target.value === "" ? null : Number(e.target.value) })} />

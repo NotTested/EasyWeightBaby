@@ -4,7 +4,7 @@ import { exerciseFields, normalizeExerciseName } from "./exercise-input";
 import { actualSetSchema, cardioRecordSchema } from "./actual-input";
 import { routineFields } from "./routine-input";
 import { localDateSchema } from "./session-input";
-import { lastWorkingIndex } from "./set-performance";
+import { lastWorkingIndex, setVolumeKg } from "./set-performance";
 import { readStaging, validateReview, reviewHash, fileHash } from "./import-review";
 const id = z.string().regex(/^[0-9a-f]{32}$/), hash = z.string().regex(/^[0-9a-f]{64}$/);
 const note = z.string().trim().min(1).max(2000);
@@ -109,7 +109,7 @@ export function validateTargets(stagingText: string, manifest: unknown, value: u
    if (dumbbell && set.completed && set.dumbbellCount === null) throw new Error("Missing dumbbell count");
    if (!dumbbell && set.dumbbellCount !== null) throw new Error("Dumbbell count on non-dumbbell exercise");
    if (log.snapshot.equipment === "bodyweight" && set.weightKg !== null && set.weightKg !== 0) throw new Error("Bodyweight external load must be zero");
-   if (session.recordKind === "actual" && set.completed) volumeKg += set.weightKg! * (dumbbell ? set.dumbbellCount! : 1) * set.reps!;
+   if (session.recordKind === "actual" && set.completed) volumeKg += setVolumeKg(set, log.snapshot.equipment)!;
   }
  }
  if (used.size !== reviewed.size) throw new Error("Every reviewed source must have exactly one target mapping");
@@ -167,7 +167,7 @@ export async function dryRunTargets(db: PrismaClient, ownerId: string, stagingTe
      if (item.exerciseName !== expected.name || item.equipment !== expected.equipment || item.execution !== expected.execution || item.measurement !== expected.measurement) throw new Error("Historical exercise snapshot was not preserved");
     }
    }
-   const persistedVolume = snapshot.filter(s => s.recordKind === "actual").reduce((sum, s) => sum + s.exercises.reduce((subtotal, e) => subtotal + e.sets.filter(set => set.completed).reduce((total, set) => total + set.weightKg! * (["dumbbell", "dumbbell_bench"].includes(e.equipment) ? set.dumbbellCount! : 1) * set.reps!, 0), 0), 0);
+   const persistedVolume = snapshot.filter(s => s.recordKind === "actual").reduce((sum, s) => sum + s.exercises.reduce((subtotal, e) => subtotal + e.sets.filter(set => set.completed).reduce((total, set) => total + setVolumeKg(set, e.equipment)!, 0), 0), 0);
    if (Math.abs(persistedVolume - validated.volumeKg) > 1e-8 || snapshot.some(s => s.startedAt !== null || s.endedAt !== null || s.exercises.some(e => e.goalSets !== null || e.goalMinReps !== null || e.goalMaxReps !== null || e.goalRir !== null))) throw new Error("Persisted graph does not preserve import invariants");
    result = { mode: "target_dry_run", canApply: false, targetHash: validated.targetHash,
     counts: { exercises: plan.exercises.filter(e => e.action === "create").length, mergedSources: plan.exercises.filter(e => e.action === "merge").length, routines: plan.routines.length, sessions: snapshot.length, logs: snapshot.reduce((n, s) => n + s.exercises.length, 0), sets: snapshot.reduce((n, s) => n + s.exercises.reduce((m, e) => m + e.sets.length, 0), 0), cardio: snapshot.reduce((n, s) => n + s.cardio.length, 0) },

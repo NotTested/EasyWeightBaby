@@ -4,7 +4,7 @@ export const actualSetSchema = z.object({
   dumbbellCount: z.union([z.literal(1), z.literal(2)]).nullable(),
   reps: z.number().int().min(0).max(1000).nullable(),
   completed: z.boolean(),
-  side: z.enum(["unspecified", "both", "left", "right"]),
+  side: z.enum(["unspecified", "both", "alternating_both", "left", "right"]),
   kind: z.enum(["working", "warmup"]),
   actualRir: z.number().int().min(0).max(10).nullable(),
 }).strict().refine(s => !s.completed || (s.weightKg !== null && s.reps !== null), "수행 완료에는 중량과 반복이 필요합니다.").refine(s => s.completed || s.actualRir === null, "실제 RIR은 수행 완료한 세트에 기록하세요.");

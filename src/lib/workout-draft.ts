@@ -1,3 +1,4 @@
+import { sideLabels, repetitionText } from "./set-performance";
 import { z } from "zod";
 const number = z.number().nullable();
 const set = z.object({ side: z.string().max(30), kind: z.string().max(30), actualRir: number, weightKg: number, dumbbellCount: number, reps: number, completed: z.boolean() });
@@ -38,6 +39,6 @@ export function clearAccountDrafts(ownerId: string) {
 }
 export function workoutText(model: WorkoutModel) {
  return [model.status === "completed" ? "기록 상태: 완료" : model.status === "planned" ? "기록 상태: 계획" : "기록 상태: 진행 중", `운동일지 메모: ${model.actualNotes}`,
- ...model.exercises.flatMap(e => [e.exerciseName, ...e.sets.map((s, i) => `${i + 1}행: ${{ unspecified: "측 미지정", both: "양측 동시", left: "왼쪽", right: "오른쪽" }[s.side] ?? s.side} / ${s.kind === "warmup" ? "워밍업" : "본세트"}, ${s.weightKg ?? "미입력"}kg × ${s.dumbbellCount ?? "-"}개, ${s.reps ?? "미입력"}회, RIR ${s.actualRir ?? "미입력"}, ${s.completed ? "수행" : "미완료"}`)]),
+ ...model.exercises.flatMap(e => [e.exerciseName, ...e.sets.map((s, i) => `${i + 1}행: ${sideLabels[s.side as keyof typeof sideLabels] ?? s.side} / ${s.kind === "warmup" ? "워밍업" : "본세트"}, ${s.weightKg ?? "미입력"}kg × ${s.dumbbellCount ?? "-"}개, ${repetitionText(s)}, RIR ${s.actualRir ?? "미입력"}, ${s.completed ? "수행" : "미완료"}`)]),
  ...model.cardio.map(c => `${c.activity}: ${c.durationMinutes ?? "미입력"}분, ${c.distanceKm ?? "미입력"}km, ${c.intensity}, ${c.notes}, ${c.completed ? "수행" : "미완료"}`)].join("\n");
 }

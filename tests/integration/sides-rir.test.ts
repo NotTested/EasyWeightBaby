@@ -23,6 +23,15 @@ test("independent sides and per-row RIR survive saves without multiplication, co
   assert.equal(item.exercises[0].sets.reduce((sum: number, s: typeof left) => sum + s.reps, 0), 18);
   assert.equal(lastWorkingIndex(item.exercises[0].sets), 1);
   assert.equal(item.exercises[0].sets[1].actualRir, null);
+  sets = [{ ...left, side: "alternating_both", reps: 12, dumbbellCount: 2 }];
+  await save();
+  assert.equal(item.exercises[0].sets.length, 1);
+  assert.equal(item.exercises[0].sets[0].side, "alternating_both");
+  assert.equal(item.exercises[0].sets[0].reps, 12);
+  const alternatingReload = (await (await app.request(`/api/sessions/${item.id}`, "GET", undefined, a.cookie)).json()).item;
+  assert.deepEqual(alternatingReload.exercises[0].sets, sets);
+  const savedRow = await app.db.workoutSet.findFirstOrThrow({ where: { sessionExerciseId: item.exercises[0].id } });
+  await assert.rejects(app.db.workoutSet.update({ where: { id: savedRow.id }, data: { side: "left+right" } }));
   sets = [left, { ...right, actualRir: 2 }, { ...right, kind: "warmup", actualRir: 4 }];
   await save();
   assert.equal(lastWorkingIndex(item.exercises[0].sets), 1);

@@ -2,14 +2,14 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { equipmentLabels, executionLabels, measurementLabels } from "@/lib/exercise-input";
-import { kindLabels, sideLabels } from "@/lib/set-performance";
+import { kindLabels, sideLabels, repetitionText } from "@/lib/set-performance";
 import type { ComparisonResult, performanceSummary } from "@/lib/performance-comparison";
 function label(labels: Record<string, string>, value: string) { return labels[value] ?? value; }
 function PerformanceRows({ item }: { item: ReturnType<typeof performanceSummary> }) {
  return <div><p>{label(equipmentLabels, item.equipment)} · {label(executionLabels, item.execution)} · {label(measurementLabels, item.measurement)} · 벤치 {item.benchAngle || "미지정"}</p>
   <p>마지막 완료 본세트 RIR: {item.lastWorkingRow === null ? "완료 본세트 없음" : item.lastWorkingRir === null ? "미입력" : item.lastWorkingRir} {item.lastWorkingRow !== null && `(${item.lastWorkingRow}행)`}</p>
   <ol>{item.sets.map((set, index) => <li key={index}>{set.completed ? "수행 완료" : "미완료"} · {label(kindLabels, set.kind)} · {label(sideLabels, set.side)}<br />
-   {set.weightKg === null ? "중량 미입력" : `${set.weightKg}kg${["dumbbell", "dumbbell_bench"].includes(item.equipment) ? "(개당)" : "(외부 중량)"}`}{["dumbbell", "dumbbell_bench"].includes(item.equipment) && <> · 덤벨 {set.dumbbellCount === null ? "미입력" : `${set.dumbbellCount}개`}</>} · {set.reps === null ? "반복 미입력" : `${set.reps}회`} · RIR {set.actualRir === null ? "미입력" : set.actualRir}
+   {set.weightKg === null ? "중량 미입력" : `${set.weightKg}kg${["dumbbell", "dumbbell_bench"].includes(item.equipment) ? "(개당)" : "(외부 중량)"}`}{["dumbbell", "dumbbell_bench"].includes(item.equipment) && <> · 덤벨 {set.dumbbellCount === null ? "미입력" : `${set.dumbbellCount}개`}</>} · {repetitionText(set)} · RIR {set.actualRir === null ? "미입력" : set.actualRir}
   </li>)}</ol>{!item.sets.length && <p>저장된 실제 세트 행이 없습니다.</p>}</div>;
 }
 export function PreviousPerformance({ sessionId }: { sessionId: string }) {
