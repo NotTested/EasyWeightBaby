@@ -8,7 +8,7 @@
 - 소스: 사용자가 제공한 `member-app-export-2026-10-27.zip`.
 - 압축의 `member-app/` 하위 파일을 저장소 루트에 복원했다. 별도 중첩 프로젝트나 Git worktree는 만들지 않았다.
 - A1 복원 당시에는 커밋 없는 `work` 브랜치였고 사용자 파일 변경은 없었다.
-- 현재 브랜치는 `feat/c6-cardio-notes-completion`, 기준 커밋은 `42e6451`이다. C1~C5는 main에 커밋·푸시했고 C6~E4 준비는 이번 작업 브랜치 커밋에 포함한다. 단계별 과거 미커밋 표기는 당시 기록이다.
+- 현재 작업 브랜치는 `codex/f1-input-contract`, 기준 커밋은 `a7b0465`다. 기존 C6~E4는 `feat/c6-cardio-notes-completion`의 해당 커밋에 보존돼 있다. F1 계약 작업은 미커밋이며 단계별 과거 미커밋 표기는 당시 기록이다.
 - 기존 문서에 적힌 `/workspace/member-app`은 이전 환경 경로다. 이 환경의 모든 설치·실행 명령은 `/workspace/EasyWeightBaby`에서 실행한다.
 - 기존 HANDOFF 및 EXPORT_MANIFEST는 내보내기 당시 상태를 보존하는 원본이다. 최신 계획은 `06-current-development-plan.md`, 현재 진행 상황은 이 문서를 우선 참고한다.
 
@@ -41,7 +41,8 @@
 | E2 NAS HTTPS·설치 | 설정·점검 도구·로컬 HTTPS 검증 완료 / 실제 NAS·실물 기기 대기 |
 | E3 백업·복원 | 도구·격리 복원 검증 완료 / NAS 스케줄·외부 사본 대기 |
 | E4 운영 점검 | 도구·업데이트/장애 대응 절차 준비 완료 / 실제 NAS 적용 대기 |
-| F1~F5 자연어·AI·MCP | 대기 |
+| F1 자연어 규칙 파서 | 입력/출력 계약·타입·합성 인수 사례 준비 / 파서 구현 대기 |
+| F2~F5 후속 자연어·AI·MCP | 대기 |
 
 작업 ID의 범위와 완료 기준은 대화에서 정한 단계별 작업 단위를 따른다. 위 묶음은 완료 표시를 줄이기 위한 것으로 여러 작업을 한 번에 수행하라는 의미가 아니다.
 
@@ -352,3 +353,14 @@ NAS 역방향 프록시와 공개 HTTPS 구성을 작은 단위로 준비하고 
 ## 형상관리 정리 (2026-10-31)
 
 C6~C7, D1~D5, E1~E4 준비·검증 변경을 `feat/c6-cardio-notes-completion` 브랜치의 한 커밋으로 정리한다. 개인 원본·검토 산출물·환경 비밀키·DB 백업은 포함하지 않는다. 실제 NAS 적용 대기와 원본 이관 보류 상태는 유지한다.
+
+
+## F1 입력·출력 계약 준비 (2026-10-31)
+
+PC의 격리 Linux 개발 VM에서 기존 a7b0465를 기준으로 codex/f1-input-contract 브랜치를 생성했다. 원문 구간·explicit/missing/ambiguous/invalid·허용된 종목 카탈로그·RIR 대상 힌트·초안 확인/거부 결과·자원 한도를 타입과 [계약 문서](30-natural-language-contract.md)에 정의했다.
+
+이 작업 단위에는 파서 함수·UI/API·DB 저장·AI 호출이 없다. 합성 사례는 후속 파서 구현의 인수 기준이며 테스트 통과로 표시하지 않는다. 다음은 순수 규칙 파서와 실제 단위 검증이다. NAS 현장 작업 및 Notion 원본 적재 보류는 유지한다.
+
+
+## F0-01 통합 기준 (2026-11-01)
+운영 양쪽 교대 변경과 F1 계약을 codex/chatgpt-integration에 보존했다. docs/32-chatgpt-automation-plan.md 및 docs/33-integration-baseline.md 참조. 과거 NAS 보류 문구는 당시 기록이며 현재 운영은 sides-1cd5deca9140이다. 파서·MCP/OAuth·예약은 미구현이다.
