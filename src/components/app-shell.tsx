@@ -5,7 +5,7 @@ import { AppNavigation } from "./app-navigation";
 import { SignOut } from "./sign-out";
 
 export function AppShell({ user, children }: {
-  user: { name: string; role?: string }; children: ReactNode;
+  user: { id: string; name: string; role?: string }; children: ReactNode;
 }) {
   return <div className="shell app-shell">
     <a className="skip-link" href="#main-content">본문으로 이동</a>
@@ -13,7 +13,7 @@ export function AppShell({ user, children }: {
       <Link className="brand" href="/">회원님?<small>WORKOUT JOURNAL</small></Link>
       <nav className="nav account-menu" aria-label="계정 메뉴">
         {isAdmin(user) && <Link href="/admin/invitations">친구 초대</Link>}
-        <span className="account-name">{user.name}님</span><SignOut />
+        <span className="account-name">{user.name}님</span><SignOut ownerId={user.id} />
       </nav>
     </header>
     <AppNavigation />

@@ -7,3 +7,17 @@ node_modules/
 coverage/
 test-results/
 /public/sw.js
+
+# Private import previews and Python caches
+/reports/notion/
+__pycache__/
+*.pyc
+
+# Runtime Docker secrets
+.secrets/
+docker/*.env
+
+# Private database archives
+/backups/
+*.dump
+*.partial

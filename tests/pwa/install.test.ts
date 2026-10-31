@@ -2,8 +2,9 @@ import "dotenv/config";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { randomBytes, randomUUID } from "node:crypto";
-import { spawn, execFileSync } from "node:child_process";
+import { spawn, execFile, execFileSync } from "node:child_process";
 import { once } from "node:events";
+import { promisify } from "node:util";
 import { setTimeout as delay } from "node:timers/promises";
 import { mkdtemp, rm, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -77,6 +78,24 @@ test("Chromium PWA install and standalone launch", { timeout: 120000 }, async t 
     await page.getByRole("button", { name: "로그인", exact: true }).click();
     await page.waitForURL(base + "/");
     await page.waitForFunction(() => !!navigator.serviceWorker.controller);
+    if (cert) {
+      await t.test("HTTPS proxy deployment checks, secure cookies and foreign origin rejection", async () => {
+        await promisify(execFile)("python3", ["scripts/check-deployment.py", base], {
+          env: { ...process.env, DEPLOY_CA_FILE: process.env.NODE_EXTRA_CA_CERTS }, timeout: 30000,
+        });
+        const cookies = (await context!.cookies()).filter(cookie => cookie.name.includes("session_token"));
+        assert.equal(cookies.length, 1);
+        assert.equal(cookies[0].secure, true);
+        assert.equal(cookies[0].httpOnly, true);
+        assert.equal(cookies[0].sameSite, "Lax");
+        const rejected = await context!.request.post(base + "/api/auth/sign-out", {
+          headers: { Origin: "https://foreign.example.invalid" }, data: {},
+        });
+        assert.equal(rejected.status(), 403);
+        assert.equal((await context!.request.get(base + "/api/me")).status(), 200);
+      });
+    }
+
     const cdp = await context.newCDPSession(page);
     await t.test("manifest, icons and browser installability", async () => {
       assert.equal(await page.evaluate(() => isSecureContext), true);

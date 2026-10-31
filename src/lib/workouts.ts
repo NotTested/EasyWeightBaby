@@ -4,10 +4,12 @@ import { db } from "./db";
 import { HttpError } from "./http";
 import type { StartSessionInput } from "./session-input";
 
-export const sessionSelect = { id: true, title: true, localDate: true, timeZone: true, status: true, version: true,
-  startedAt: true, routineName: true, routineNumber: true, routineWeekday: true, createdAt: true, updatedAt: true,
+export const sessionSelect = { id: true, title: true, localDate: true, timeZone: true, status: true, recordKind: true, version: true,
+  startedAt: true, endedAt: true, routineName: true, routineNumber: true, routineWeekday: true, createdAt: true, updatedAt: true,
 } satisfies Prisma.WorkoutSessionSelect;
-export const sessionDetailSelect = { ...sessionSelect, exercises: { orderBy: { position: "asc" }, select: {
+export const sessionDetailSelect = { ...sessionSelect, actualNotes: true,
+  cardio: { orderBy: { position: "asc" }, select: { activity: true, durationMinutes: true, distanceKm: true, intensity: true, notes: true, completed: true } },
+  exercises: { orderBy: { position: "asc" }, select: {
   id: true, exerciseId: true, position: true, exerciseName: true, equipment: true, execution: true, measurement: true,
   sets: { orderBy: { position: "asc" }, select: { weightKg: true, dumbbellCount: true, reps: true, completed: true, side: true, kind: true, actualRir: true } },
   goalSets: true, goalMinReps: true, goalMaxReps: true, goalRir: true, benchAngle: true, notes: true,
@@ -61,12 +63,18 @@ export async function saveActualWorkout(id: string, ownerId: string, input: impo
   return db.$transaction(async tx => {
     const current = await tx.workoutSession.findFirst({ where: { id, ownerId }, include: { exercises: true } });
     if (!current) throw new HttpError(404, "운동일지를 찾을 수 없습니다.");
-    if (current.status !== "in_progress") throw new HttpError(409, "진행 중인 운동만 수정할 수 있습니다.");
+    if (current.recordKind !== "actual") throw new HttpError(409, "테스트·계획 기록은 실제 수행 입력으로 수정하지 않습니다.");
+    if (!["in_progress", "completed"].includes(current.status)) throw new HttpError(409, "수정할 수 없는 운동 상태입니다.");
+    if (input.intent === "complete" && current.status !== "in_progress") throw new HttpError(409, "이미 종료한 운동입니다. 서버 기록을 다시 확인해주세요.");
     if (current.version !== input.version) throw new HttpError(409, "다른 저장 내용이 있습니다. 입력을 확인하고 새로고침해주세요.");
     const ids = input.exercises.flatMap(e => e.id ? [e.id] : []);
     if (new Set(ids).size !== ids.length || current.exercises.some(e => !ids.includes(e.id)))
       throw new HttpError(400, "기존 종목을 누락하거나 중복할 수 없습니다.");
-    const changed = await tx.workoutSession.updateMany({ where: { id, ownerId, version: input.version }, data: { version: { increment: 1 } } });
+    const changed = await tx.workoutSession.updateMany({ where: { id, ownerId, version: input.version, status: current.status }, data: {
+      version: { increment: 1 },
+      ...(input.actualNotes !== undefined ? { actualNotes: input.actualNotes } : {}),
+      ...(input.intent === "complete" ? { status: "completed", endedAt: new Date() } : {}),
+    } });
     if (!changed.count) throw new HttpError(409, "다른 저장 내용이 있습니다. 입력을 확인하고 새로고침해주세요.");
     for (const entry of input.exercises) {
       let exercise = current.exercises.find(e => e.id === entry.id);
@@ -87,6 +95,10 @@ export async function saveActualWorkout(id: string, ownerId: string, input: impo
       }
       await tx.workoutSet.deleteMany({ where: { sessionExerciseId: exercise.id } });
       await tx.workoutSet.createMany({ data: entry.sets.map((set, position) => ({ ...set, position, sessionExerciseId: exercise!.id })) });
+    }
+    if (input.cardio !== undefined) {
+      await tx.cardioRecord.deleteMany({ where: { sessionId: id } });
+      await tx.cardioRecord.createMany({ data: input.cardio.map((entry, position) => ({ ...entry, position, sessionId: id })) });
     }
     return tx.workoutSession.findUniqueOrThrow({ where: { id }, select: sessionDetailSelect });
   });

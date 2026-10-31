@@ -16,10 +16,18 @@
     "admin:create": "tsx scripts/create-admin.ts",
     "test": "tsx --test tests/*.test.ts",
     "test:integration": "tsx --test --test-concurrency=1 tests/integration/*.test.ts",
-    "test:db": "tsx --test tests/database/*.test.ts",
+    "test:db": "tsx --test --test-concurrency=1 tests/database/*.test.ts",
     "test:browser": "tsx --test --test-concurrency=1 tests/browser/*.test.ts",
     "test:production": "tsx --test tests/production/*.test.ts",
-    "test:pwa": "tsx --test tests/pwa/*.test.ts"
+    "test:pwa": "tsx --test tests/pwa/*.test.ts",
+    "notion:preview": "python3 scripts/notion_preview.py",
+    "test:import": "python3 -m unittest discover -s tests/import -p 'test_*.py'",
+    "notion:review": "tsx scripts/notion-review.ts",
+    "notion:target": "tsx scripts/notion-target.ts",
+    "notion:packet": "tsx scripts/notion-packet.ts",
+    "test:docker": "tsx scripts/test-docker.ts",
+    "test:backup": "python3 -m unittest discover -s tests/backup -v",
+    "test:operations": "python3 -m unittest discover -s tests/operations -v"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.1",

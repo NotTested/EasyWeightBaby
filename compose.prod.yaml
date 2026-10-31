@@ -1,0 +1,91 @@
+name: member-app
+x-tool-env: &tool-env
+  HOME: /tmp
+  DB_HOST: db
+  DB_NAME: member
+  DB_USER: member
+  DB_PASSWORD_FILE: /run/secrets/db_password
+services:
+  db:
+    image: postgres:17-bookworm@sha256:858bb5e98eed02eb8cafbcdc007f9a65d1b613972028944a8ec2133ccaf80d27
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: member
+      POSTGRES_DB: member
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets: [db_password]
+    volumes: [member_db:/var/lib/postgresql/data]
+    networks: [backend]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U member -d member"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: '3'}
+  migrate:
+    image: ${TOOLS_IMAGE:?Set TOOLS_IMAGE}
+    platform: linux/amd64
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
+    environment: *tool-env
+    secrets: [db_password]
+    command: [migrate]
+    depends_on:
+      db: {condition: service_healthy}
+    networks: [backend]
+    restart: 'no'
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    read_only: true
+    tmpfs: [/tmp]
+  app:
+    image: ${APP_IMAGE:?Set APP_IMAGE}
+    platform: linux/amd64
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
+    init: true
+    restart: unless-stopped
+    environment:
+      <<: *tool-env
+      AUTH_SECRET_FILE: /run/secrets/auth_secret
+      APP_URL: ${APP_URL:?Set public HTTPS APP_URL}
+    secrets: [db_password, auth_secret]
+    depends_on:
+      db: {condition: service_healthy}
+      migrate: {condition: service_completed_successfully}
+    ports: ["${APP_BIND_ADDRESS:-127.0.0.1}:${APP_PORT:-3000}:3000"]
+    networks: [backend, frontend]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    logging:
+      driver: json-file
+      options: {max-size: 10m, max-file: '3'}
+  tools:
+    image: ${TOOLS_IMAGE:?Set TOOLS_IMAGE}
+    platform: linux/amd64
+    user: "${APP_UID:-1000}:${APP_GID:-1000}"
+    profiles: [tools]
+    environment: *tool-env
+    secrets: [db_password]
+    command: [admin]
+    depends_on:
+      db: {condition: service_healthy}
+    networks: [backend]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    stdin_open: true
+    tty: true
+networks:
+  backend: {internal: true}
+  frontend: {}
+volumes:
+  member_db: {}
+secrets:
+  db_password:
+    file: ${DB_PASSWORD_PATH:?Set DB_PASSWORD_PATH}
+  auth_secret:
+    file: ${AUTH_SECRET_PATH:?Set AUTH_SECRET_PATH}

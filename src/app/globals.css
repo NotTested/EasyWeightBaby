@@ -119,3 +119,11 @@ textarea { font:inherit; min-width:0; width:100%; resize:vertical; border:1px so
 .actual-set > div { flex: 1 1 8rem; min-width: 0; }
 .actual-set input[type=number] { width: 100%; min-width: 0; }
 .actual-set input[type=checkbox] { width: auto; }
+.draft-text { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; }
+.history-filter { display:flex; flex-wrap:wrap; align-items:end; gap:1rem; }
+.history-filter > div { flex:1 1 10rem; min-width:0; }
+.comparison-item { margin-top:1.5rem; overflow-wrap:anywhere; }
+.comparison-columns { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1.5rem; }
+.comparison-columns ol { padding-left:1.25rem; }
+.comparison-columns li { margin-block:.7rem; }
+@media(max-width:700px) { .comparison-columns { grid-template-columns:1fr; } }

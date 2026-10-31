@@ -22,6 +22,8 @@ model User {
   workouts      WorkoutSession[]
   exercises     Exercise[]
   routines      Routine[]
+  importBatches ImportBatch[]
+  importSources ImportSource[]
 }
 
 model Session {
@@ -102,10 +104,14 @@ model WorkoutSession {
   localDate String   @db.VarChar(10)
   timeZone  String   @default("Asia/Seoul")
   status    String   @default("in_progress")
+  recordKind String @default("actual")
   version   Int      @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   startedAt DateTime?
+  endedAt DateTime?
+  actualNotes String @default("")
+  cardio CardioRecord[]
   startKey String?
   startHash String?
   routineVersionId String?
@@ -116,6 +122,7 @@ model WorkoutSession {
   exercises SessionExercise[]
   @@unique([ownerId, startKey])
   @@index([ownerId, localDate])
+  @@index([ownerId, recordKind, localDate])
 }
 
 model Exercise {
@@ -227,4 +234,64 @@ model WorkoutSet {
   kind String @default("working")
   actualRir Int?
   @@unique([sessionExerciseId, position])
+}
+
+model CardioRecord {
+  id String @id @default(cuid())
+  sessionId String
+  session WorkoutSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  position Int
+  activity String
+  durationMinutes Float?
+  distanceKm Float?
+  intensity String
+  notes String
+  completed Boolean @default(false)
+  @@unique([sessionId, position])
+}
+
+model ImportBatch {
+  id String @id @default(cuid())
+  ownerId String
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  archiveHash String
+  stagingHash String
+  manifestHash String
+  state String @default("reviewed")
+  createdAt DateTime @default(now())
+  sources ImportSource[]
+  @@unique([id, ownerId])
+  @@unique([ownerId, stagingHash, manifestHash])
+}
+model ImportSource {
+  id String @id @default(cuid())
+  ownerId String
+  owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  provider String @default("notion")
+  sourceType String
+  externalId String
+  contentHash String
+  reviewHash String
+  review Json
+  batchId String
+  batch ImportBatch @relation(fields: [batchId, ownerId], references: [id, ownerId], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  target ImportTarget?
+  @@unique([id, ownerId])
+  @@unique([ownerId, provider, sourceType, externalId])
+}
+
+model ImportTarget {
+  id String @id @default(cuid())
+  sourceId String @unique
+  ownerId String
+  source ImportSource @relation(fields: [sourceId, ownerId], references: [id, ownerId], onDelete: Cascade)
+  targetKind String
+  targetId String
+  mappingHash String
+  snapshotHash String
+  state String @default("prepared")
+  createdAt DateTime @default(now())
+  @@unique([sourceId, ownerId])
+  @@index([ownerId, targetKind, targetId])
 }

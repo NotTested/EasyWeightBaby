@@ -11,6 +11,7 @@ export function AuthForm({ join = false }: { join?: boolean }) {
       setToken(window.location.hash.slice(7));
       window.history.replaceState(null, "", window.location.pathname);
     }
+    if (new URLSearchParams(window.location.search).get("draftCleanup") === "failed") setError("로그아웃했지만 기기 초안을 정리하지 못했습니다. 브라우저의 이 사이트 저장 데이터를 확인해주세요.");
     setReady(true);
   }, [join]);
   async function submit(event: FormEvent<HTMLFormElement>) {
